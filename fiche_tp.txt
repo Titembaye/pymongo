@@ -1,0 +1,107 @@
+Python peut être utilisé dans les applications de bases de données.L'une des bases de données 
+NoSQL les plus populaires est MongoDB. MongoDB stocke les données dans des documents de type JSON,
+ce qui rend la base de données très flexible et évolutive. L'utilisation de python avec MongoDB 
+nécessite qu'une base de données MongoDB existe au préalable.
+
+PyMongo
+Pymongo est une bibliothèque python qui permet de se connecter à une base de données MongoDB et de
+de manipuler pour creer, modifier, supprimer et afficher les documents.
+
+    En fait, Python a besoin d'un pilote MongoDB pour accéder à la base de données MongoDB.
+C'est ce pilote  qui s'appelle ici "PyMongo".
+
+Finalement PyMongo est une bibliothèque pour python mais également une pilote pour MongoDB.
+
+1.Installation
+Pour installer PyMongo, la facon la plus simple est d'utiliser le gestionnaire de packages pip.
+>python -m pip install pymongo
+
+2.Création d'une base de données
+
+Pour créer une base de données dans MongoDB, commencons par créer un objet MongoClient,
+puis spécifions une URL de connexion avec la bonne adresse IP et le nom de la base de données 
+que vous souhaitons utliser.
+
+    myclient = pymongo.MongoClient(host="localhost",port=27017)
+    mydb = myclient["mydatabase"]
+
+MongoDB créera la base de données si elle n'existe pas et s'y connectera.
+MongoDB attend que vous ayez créé une collection (table), avec au moins un document (enregistrement) 
+avant de créer réellement la base de données (et la collection).
+
+3.Vérifiez si la base de données existe
+On peut vérifier si une base de données existe en répertoriant toutes les bases de données de votre système :
+
+    print(myclient.database_names())
+
+4.Créer une collection
+Pour créer une collection, on utilise l'instance de la base de données qu'on a créé précédemment 
+    
+    mycol = mydb["customers"]
+
+MongoDB attend qu'on insère un document avant de créer réellement la collection. Nous pouvons verifier
+la liste des collections pour confirmer.
+
+5. Insérer un document
+
+Pour insérer un enregistrement, ou un document comme on l'appelle dans MongoDB, dans une collection, 
+on utilise la méthode insert_one(). Le premier paramètre de la insert_one()méthode est un 
+dictionnaire contenant le(s) nom(s) et valeur(s) de chaque champ du document qu'on souhaite insérer.
+    mydict = { "name": "John", "address": "Highway 37" }
+    x = mycol.insert_one(mydict)
+
+    Insérer plusieurs documents
+
+    Pour insérer plusieurs documents dans une collection dans MongoDB, on utilise la méthode 
+    insert_many(). Le premier paramètre de la insert_many()méthode est une liste contenant des 
+    dictionnaires avec les données qu'on souhaite insérer. (Cf insertion.py)
+
+
+    NB: Si on ne souhaite pas que MongoDB attribue des identifiants uniques automatiquement à nos 
+    document, on peut spécifier le champ _id lorsqu'on insère le(s) document(s).
+    N'oubliez pas que les valeurs doivent être uniques. Deux documents ne peuvent pas avoir le même _id.
+
+6.Python MongoDB Rechercher
+
+Trouver un document
+Pour sélectionner des données d'une collection dans MongoDB, nous pouvons utiliser la méthode 
+find_one(). Cette méthode renvoie la première occurrence de la sélection.
+    
+    first_client = mycol.find_one()
+
+Afficher tous les documents
+Pour sélectionner des données dans une table dans MongoDB, nous pouvons également utiliser la méthode find().
+Cette méthode renvoie toutes les occurrences de la sélection. Le premier paramètre de la méthode
+find() est un objet de requête. Dans cet exemple, nous utilisons un objet de requête vide, qui sélectionne tous les documents de la collection.
+
+    clients=mycol.find({},{"_id":False,"name":True, "address":True})
+
+7. Filtrer les résultats des requetes
+Lorsqu'on recherche des documents dans une collection, on peut filtrer le résultat à l'aide 
+d'un objet de requête. Le premier argument de la méthode find() est un objet de requête et est 
+utilisé pour limiter la recherche.
+
+   query_by_address = { "address": "Park Lane 38" }
+    clients = mycol.find(query_by_address)
+
+   Filtre avancée
+   Pour effectuer des requêtes avancées, on peut utiliser des modificateurs comme valeurs dans 
+   l'objet de requête.Par exemple, pour rechercher les documents dont le champ "adresse" commence 
+   par la lettre "S" ou supérieure (par ordre alphabétique), on utilise le modificateur supérieur à 
+   : {"$gt": "S"} : (cf recherche.py)
+
+   Filtrer avec des expressions régulières
+   On peut également utiliser des expressions régulières comme modificateur. Pour rechercher 
+   uniquement les documents dont le champ "adresse" commence par la lettre "S", on utilise 
+   l'expression régulière {"$regex": "^S"}:
+
+   myquery = { "address": { "$regex": "^S" } }
+
+8.Trier le résultat
+On utilise méthode sort()pour trier le résultat par ordre croissant ou décroissant.
+Cette méthode prend un paramètre pour "fieldname" et un paramètre pour "direction" 
+(la direction ascendante est la direction par défaut).
+    
+    clients = mycol.find().sort("name")
+
+    
